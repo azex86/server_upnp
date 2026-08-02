@@ -1,0 +1,15 @@
+[package]
+name = "server_upnp"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.8"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "fs", "io-util", "signal", "time"] }
+tower = { version = "0.5", features = ["util"] }
+tower-http = { version = "0.6", features = ["fs"] }
+socket2 = "0.5"
+if-addrs = "0.13"
+percent-encoding = "2"
+mime_guess = "2"
+httpdate = "1"
