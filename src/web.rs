@@ -18,8 +18,14 @@ use crate::{desc, soap, AppState};
 pub fn router(state: Arc<AppState>) -> Router {
     Router::new()
         .route("/desc.xml", get(device_desc))
-        .route("/cd/scpd.xml", get(|| async { xml(desc::CD_SCPD.to_string()) }))
-        .route("/cm/scpd.xml", get(|| async { xml(desc::CM_SCPD.to_string()) }))
+        .route(
+            "/cd/scpd.xml",
+            get(|| async { xml(desc::CD_SCPD.to_string()) }),
+        )
+        .route(
+            "/cm/scpd.xml",
+            get(|| async { xml(desc::CM_SCPD.to_string()) }),
+        )
         .route("/cd/control", post(cd_control))
         .route("/cm/control", post(cm_control))
         .route("/cd/event", any(event))
@@ -64,11 +70,7 @@ fn soap_response(status: StatusCode, body: String) -> Response {
         .unwrap()
 }
 
-async fn cd_control(
-    State(st): State<Arc<AppState>>,
-    headers: HeaderMap,
-    body: String,
-) -> Response {
+async fn cd_control(State(st): State<Arc<AppState>>, headers: HeaderMap, body: String) -> Response {
     let action = soap_action_name(&headers);
     let host = host_header(&headers);
     let (status, xml_body) = soap::content_directory(st, action, host, body).await;

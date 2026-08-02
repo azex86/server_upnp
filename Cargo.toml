@@ -2,6 +2,12 @@
 name = "server_upnp"
 version = "1.0.0"
 edition = "2021"
+authors = ["azex86"]
+description = "Serveur UPnP/DLNA minimal : expose un dossier tel quel, sans indexation, pour VLC et les TV"
+license = "MIT"
+readme = "README.md"
+keywords = ["upnp", "dlna", "mediaserver", "streaming"]
+categories = ["multimedia", "network-programming"]
 
 [dependencies]
 axum = "0.8"
@@ -13,3 +19,7 @@ if-addrs = "0.13"
 percent-encoding = "2"
 mime_guess = "2"
 httpdate = "1"
+
+[profile.release]
+strip = true
+lto = "thin"

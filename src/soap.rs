@@ -265,15 +265,30 @@ async fn browse(st: &AppState, base: &str, body: &str) -> Result<String, (u32, &
                 .then_with(|| a.name.cmp(&b.name))
         });
         let total = children.len();
-        let end = if count == 0 { total } else { (start.saturating_add(count)).min(total) };
-        let slice: &[Child] = if start < total { &children[start..end] } else { &[] };
+        let end = if count == 0 {
+            total
+        } else {
+            (start.saturating_add(count)).min(total)
+        };
+        let slice: &[Child] = if start < total {
+            &children[start..end]
+        } else {
+            &[]
+        };
         let pid = id_for(&rel);
         let mut out = String::new();
         for c in slice {
             if c.is_dir {
                 out.push_str(&container_didl(&id_for(&c.rel), &pid, &c.name));
             } else {
-                out.push_str(&item_didl(base, &id_for(&c.rel), &pid, &c.name, &c.rel, c.size));
+                out.push_str(&item_didl(
+                    base,
+                    &id_for(&c.rel),
+                    &pid,
+                    &c.name,
+                    &c.rel,
+                    c.size,
+                ));
             }
         }
         (out, slice.len(), total)
@@ -318,7 +333,11 @@ pub async fn content_directory(
         },
         Some("GetSearchCapabilities") => (
             StatusCode::OK,
-            envelope(CD_SERVICE, "GetSearchCapabilities", "<SearchCaps></SearchCaps>"),
+            envelope(
+                CD_SERVICE,
+                "GetSearchCapabilities",
+                "<SearchCaps></SearchCaps>",
+            ),
         ),
         Some("GetSortCapabilities") => (
             StatusCode::OK,
@@ -328,7 +347,10 @@ pub async fn content_directory(
             StatusCode::OK,
             envelope(CD_SERVICE, "GetSystemUpdateID", "<Id>1</Id>"),
         ),
-        _ => (StatusCode::INTERNAL_SERVER_ERROR, fault(401, "Invalid Action")),
+        _ => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            fault(401, "Invalid Action"),
+        ),
     }
 }
 
@@ -361,6 +383,9 @@ pub fn connection_manager(action: Option<&str>) -> (StatusCode, String) {
                  <Status>OK</Status>",
             ),
         ),
-        _ => (StatusCode::INTERNAL_SERVER_ERROR, fault(401, "Invalid Action")),
+        _ => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            fault(401, "Invalid Action"),
+        ),
     }
 }

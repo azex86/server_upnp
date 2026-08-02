@@ -26,7 +26,10 @@ const ALIVE_EVERY: u32 = 20;
 fn targets(uuid: &str) -> Vec<(String, String)> {
     let u = format!("uuid:{uuid}");
     vec![
-        ("upnp:rootdevice".to_string(), format!("{u}::upnp:rootdevice")),
+        (
+            "upnp:rootdevice".to_string(),
+            format!("{u}::upnp:rootdevice"),
+        ),
         (u.clone(), u.clone()),
         (
             "urn:schemas-upnp-org:device:MediaServer:1".to_string(),
@@ -161,7 +164,7 @@ pub async fn run(st: Arc<AppState>) {
         // Une interface vient d'apparaître (câble branché, Wi-Fi connecté…) :
         // on la couvre et on s'annonce immédiatement dessus.
         let new_iface = join_new_interfaces(&listen, &mut joined);
-        if new_iface || tick % ALIVE_EVERY == 0 {
+        if new_iface || tick.is_multiple_of(ALIVE_EVERY) {
             send_alive_all(&send_sock, &st).await;
         }
     }
@@ -214,7 +217,10 @@ async fn respond_loop(st: Arc<AppState>, sock: Arc<UdpSocket>) {
 async fn send_alive_all(sock: &UdpSocket, st: &AppState) {
     let dst = SocketAddr::from((SSDP_ADDR, SSDP_PORT));
     for ip in ipv4_interfaces() {
-        if socket2::SockRef::from(sock).set_multicast_if_v4(&ip).is_err() {
+        if socket2::SockRef::from(sock)
+            .set_multicast_if_v4(&ip)
+            .is_err()
+        {
             continue;
         }
         let location = format!("http://{}:{}/desc.xml", ip, st.port);
@@ -244,7 +250,10 @@ pub async fn send_byebye(st: &AppState) {
     let dst = SocketAddr::from((SSDP_ADDR, SSDP_PORT));
     for _ in 0..2 {
         for ip in ipv4_interfaces() {
-            if socket2::SockRef::from(&sock).set_multicast_if_v4(&ip).is_err() {
+            if socket2::SockRef::from(&sock)
+                .set_multicast_if_v4(&ip)
+                .is_err()
+            {
                 continue;
             }
             for (nt, usn) in targets(&st.uuid) {
